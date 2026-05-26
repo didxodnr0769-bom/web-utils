@@ -11,9 +11,5 @@
   },
   "devDependencies": {
     "vite": "^5.4.0"
-  },
-  "dependencies": {
-    "cron-parser": "^4.9.0",
-    "cronstrue": "^2.50.0"
   }
 }

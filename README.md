@@ -5,19 +5,13 @@
 ## 포함된 유틸
 
 **Encoding / Decoding**
-- JWT Decoder — header/payload/signature 분해, claim 시각 표시 (서명 검증은 미지원)
+- JWT Decoder — header/payload/signature 분해, claim 시각 표시 (서명 검증은 미지원, 타임스탬프 KST 툴팁 제공)
 - Base64 ↔ Text (UTF-8 안전, URL-safe 옵션)
 - URL encode/decode (`encodeURIComponent` 기준)
-- HTML Entity encode/decode
-- Unicode escape ↔ Text (`\uXXXX` / `\u{XXXX}`, surrogate pair 지원)
-- Hex ↔ Text (UTF-8 바이트)
 
 **Tools**
+- cURL Parser — curl 명령을 메서드/URL/쿼리/헤더/바디로 분해, 각 항목 인라인 편집, Cookie는 세미콜론 단위로 분해, 변경 시 정규화된 curl로 즉시 재직렬화 (ANSI-C `$'...'` quoting 지원)
 - Unix Timestamp ↔ Date (sec/ms 자동 감지, ISO/로컬/상대시간)
-- Cron Expression — 사람 말 설명 + 다음 N개 실행 시각
-- Case Converter — camel / Pascal / snake / CONSTANT / kebab / Title / Sentence
-- Regex Tester — 매치 하이라이트 + 그룹 + 치환 미리보기
-- cURL Parser — curl 명령을 메서드/URL/쿼리/헤더/바디로 분해, 정규화된 curl로 재직렬화 (ANSI-C `$'...'` quoting 지원)
 
 입력값은 자동으로 localStorage에 저장됩니다. 새로고침해도 마지막 입력과 활성 유틸이 복원됩니다.
 

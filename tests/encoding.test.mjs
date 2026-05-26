@@ -4,9 +4,6 @@ import assert from 'node:assert/strict';
 import { decodeJwt } from '../src/utils/jwt.js';
 import { encodeBase64, decodeBase64 } from '../src/utils/base64.js';
 import { encodeUrl, decodeUrl } from '../src/utils/url-codec.js';
-import { encodeHtmlEntity, decodeHtmlEntity } from '../src/utils/html-entity.js';
-import { escapeUnicode, unescapeUnicode } from '../src/utils/unicode-escape.js';
-import { encodeHex, decodeHex } from '../src/utils/hex.js';
 
 // --- JWT ---
 test('jwt: decodes standard token', () => {
@@ -48,45 +45,4 @@ test('base64: url-safe variant', () => {
 test('url: round trip', () => {
   const text = 'hello world & 한글=foo';
   assert.equal(decodeUrl(encodeUrl(text)).value, text);
-});
-
-// --- HTML Entity ---
-test('html-entity: encode escapes basics', () => {
-  assert.equal(encodeHtmlEntity('<a href="x">©</a>'), '&lt;a href=&quot;x&quot;&gt;&#169;&lt;/a&gt;');
-});
-
-test('html-entity: decode handles named and numeric', () => {
-  assert.equal(decodeHtmlEntity('&lt;a&gt; &amp; &#169; &#x2713;'), '<a> & © ✓');
-});
-
-// --- Unicode escape ---
-test('unicode: surrogate pair round trip', () => {
-  const text = '𝕏 안녕'; // 𝕏 is outside BMP
-  const esc = escapeUnicode(text);
-  const back = unescapeUnicode(esc);
-  assert.equal(back.ok, true);
-  assert.equal(back.value, text);
-});
-
-test('unicode: braces form', () => {
-  const text = '𝕏';
-  const esc = escapeUnicode(text, { useBraces: true });
-  assert.ok(esc.startsWith('\\u{'));
-  assert.equal(unescapeUnicode(esc).value, text);
-});
-
-// --- Hex ---
-test('hex: round trip with separator', () => {
-  const text = 'hello 안녕';
-  const enc = encodeHex(text, { sep: ' ' });
-  assert.equal(decodeHex(enc).value, text);
-});
-
-test('hex: rejects odd length', () => {
-  assert.equal(decodeHex('abc').ok, false);
-});
-
-test('hex: tolerates 0x prefix and separators', () => {
-  assert.equal(decodeHex('0x68 0x65 0x6c 0x6c 0x6f').value, 'hello');
-  assert.equal(decodeHex('68:65:6c:6c:6f').value, 'hello');
 });

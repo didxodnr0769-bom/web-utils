@@ -39,8 +39,8 @@
 ```
 jwt:            { token }
 base64:         { text, mode, urlSafe }
+url:            { text, mode }
 unix-timestamp: { value, tz }
-regex:          { pattern, flags, input, replacement }
 curl:           { text }
 ```
 
@@ -76,7 +76,7 @@ export default {
 
 - 인코딩/파싱/계산은 DOM에 의존하지 않는 함수로만. `import` 만으로 Node에서 실행 가능 → 단위 테스트 대상.
 - view는 input/output 위젯을 만들고 그 함수를 호출.
-- 라이브러리(`cronstrue`, `cron-parser`)를 쓰는 모듈도 utils 안에 둔다. view에 직접 import하지 않기.
+- 외부 라이브러리를 쓰는 모듈도 utils 안에 둔다. view에 직접 import하지 않기.
 
 ### 4. localStorage 스키마
 
@@ -86,15 +86,12 @@ export default {
 
 ### 5. Vite + 가벼운 의존성
 
-- `cron-parser`, `cronstrue` 외 의존성을 추가할 때는 정말 필요한지 한 번 더 생각. 가능한 한 native API (Web Crypto, TextEncoder, URLSearchParams, Intl)로 해결.
+- 의존성을 추가할 때는 정말 필요한지 한 번 더 생각. 가능한 한 native API (Web Crypto, TextEncoder, URLSearchParams, Intl)로 해결.
 - `base: './'` 는 GitHub Pages 서브패스 배포 때문에 유지. 풀어두지 마세요.
 
 ## 알려진 한계
 
 - JWT 서명 검증 없음 (디코딩 전용). HS256 등 검증이 필요해지면 Web Crypto + secret 입력 UI 추가.
-- HTML Entity 디코더는 자주 쓰는 named entity 일부만 (`amp/lt/gt/quot/apos/nbsp/copy/...`). 광범위한 HTML5 entity 셋이 필요하면 라이브러리(decode-html) 도입 검토.
-- Cron 표현식은 5필드 표준만 지원 (cron-parser 기본). 6필드(초 포함)나 비표준 토큰은 `cron-parser` 옵션을 통해 확장 가능.
-- Regex 테스터는 JS RegExp 기준. PCRE/Python regex 와 동작이 다를 수 있음.
 - cURL 파서는 `-X / -H / -b / -d / --data-raw / --data-binary / --data-urlencode / -F` 등 흔한 옵션만 인식. `-u / -A / -e / --cert / --proxy` 같은 옵션은 무시하고 `unknown[]` 에 기록한다(재직렬화 시 빠짐). PowerShell `^` 라인 연결 미지원. ANSI-C quoting(`$'...'`, `\n \t \xHH \uHHHH` 등)은 지원. multipart(`-F`) 는 raw 영역에 줄바꿈으로 합쳐 보존만 함.
 
 ## 실행
@@ -122,5 +119,4 @@ npm run build && npm run preview
 - JWT 서명 검증 (HS256/RS256)
 - JSON/YAML/CSV 포맷터 & 상호 변환
 - 해시 생성기 (MD5/SHA, HMAC, UUID)
-- Color converter (HEX/RGB/HSL + 대비)
 - 다크모드

@@ -9,13 +9,7 @@ const defaults = {
   jwt: { token: '' },
   base64: { text: '', mode: 'encode', urlSafe: false },
   url: { text: '', mode: 'encode' },
-  'html-entity': { text: '', mode: 'encode' },
-  unicode: { text: '', mode: 'escape', useBraces: false },
-  hex: { text: '', mode: 'encode', sep: ' ' },
   'unix-timestamp': { value: '', tz: 'local' },
-  cron: { expr: '*/5 * * * *', tz: 'local', count: 5 },
-  case: { text: '' },
-  regex: { pattern: '', flags: 'g', input: '', replacement: '' },
   curl: { text: '' },
 };
 

@@ -319,3 +319,64 @@ mark {
   border-radius: 2px;
   padding: 0 1px;
 }
+
+.ts-claim {
+  cursor: help;
+  border-bottom: 1px dotted var(--border-strong);
+}
+
+/* ---------- cURL editor ---------- */
+
+.curl-summary {
+  display: grid;
+  grid-template-columns: 70px minmax(0, 1fr);
+  gap: 8px 12px;
+  align-items: center;
+}
+.curl-summary .kv-label {
+  font-size: 12px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.kv-edit {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.kv-row {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+.kv-row > input[type="text"] {
+  flex: 1;
+  min-width: 0;
+}
+.kv-row .hint.cookie-hint {
+  flex: 1;
+  font-size: 11px;
+  font-style: italic;
+}
+
+.kv-edit > .btn {
+  align-self: flex-start;
+  margin-top: 2px;
+}
+
+.cookie-block {
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-sm);
+  padding: 8px;
+  background: var(--surface-2);
+}
+.cookie-block > .kv-row:first-child > input[type="text"] {
+  font-weight: 600;
+}
+.cookie-block .kv-edit.nested {
+  margin-top: 6px;
+  padding-left: 12px;
+  border-left: 2px solid var(--border);
+}

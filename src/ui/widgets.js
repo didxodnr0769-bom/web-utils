@@ -84,9 +84,10 @@ export function outputBlock(initialText = '', { error = false } = {}) {
 export function kvTable(rows) {
   const table = el('table', { class: 'kv-table' });
   for (const [k, v] of rows) {
+    const cell = v == null ? '' : (v instanceof Node ? v : String(v));
     const tr = el('tr', {}, [
       el('th', {}, k),
-      el('td', {}, v == null ? '' : String(v)),
+      el('td', {}, cell),
     ]);
     table.appendChild(tr);
   }
