@@ -325,6 +325,104 @@ mark {
   border-bottom: 1px dotted var(--border-strong);
 }
 
+/* ---------- Color Converter ---------- */
+
+.color-swatch {
+  height: 96px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+}
+.color-swatch.clickable {
+  cursor: pointer;
+}
+.color-swatch.clickable:hover {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.color-swatch.checker {
+  background-image:
+    linear-gradient(45deg, #ddd 25%, transparent 25%),
+    linear-gradient(-45deg, #ddd 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #ddd 75%),
+    linear-gradient(-45deg, transparent 75%, #ddd 75%);
+  background-size: 16px 16px;
+  background-position: 0 0, 0 8px, 8px -8px, -8px 0;
+}
+
+.color-input-row {
+  display: flex;
+  gap: 8px;
+  align-items: stretch;
+}
+.color-input-row > input[type="text"] {
+  flex: 1;
+  min-width: 0;
+}
+
+.color-picker-native {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 40px;
+  min-width: 40px;
+  height: auto;
+  padding: 2px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  cursor: pointer;
+}
+.color-picker-native:hover { border-color: var(--accent); }
+.color-picker-native::-webkit-color-swatch-wrapper { padding: 0; }
+.color-picker-native::-webkit-color-swatch {
+  border: none;
+  border-radius: 3px;
+}
+.color-picker-native::-moz-color-swatch {
+  border: none;
+  border-radius: 3px;
+}
+
+.copyable {
+  cursor: pointer;
+  padding: 1px 4px;
+  margin: -1px -4px;
+  border-radius: 3px;
+  font-family: var(--mono);
+}
+.copyable:hover { background: var(--surface-2); }
+.copyable.copied { color: var(--success); }
+.copyable.copied::after { content: ' ✓'; }
+
+.tw-matches {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 8px;
+}
+.tw-chip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  text-align: left;
+  font: inherit;
+  color: inherit;
+}
+.tw-chip:hover { background: var(--surface-2); }
+.tw-swatch {
+  width: 32px;
+  height: 32px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.tw-info { flex: 1; min-width: 0; }
+.tw-name { font-size: 13px; font-weight: 500; }
+.tw-hex { font-size: 11px; font-family: var(--mono); color: var(--text-muted); }
+.tw-dist { font-size: 11px; color: var(--text-muted); font-family: var(--mono); }
+
 /* ---------- cURL editor ---------- */
 
 .curl-summary {

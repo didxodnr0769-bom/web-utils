@@ -11,6 +11,8 @@ const defaults = {
   url: { text: '', mode: 'encode' },
   'unix-timestamp': { value: '', tz: 'local' },
   curl: { text: '' },
+  json: { text: '', mode: 'pretty', indent: 2 },
+  color: { text: '#3b82f6' },
 };
 
 function defaultState() {

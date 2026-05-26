@@ -11,6 +11,8 @@
 
 **Tools**
 - cURL Parser — curl 명령을 메서드/URL/쿼리/헤더/바디로 분해, 각 항목 인라인 편집, Cookie는 세미콜론 단위로 분해, 변경 시 정규화된 curl로 즉시 재직렬화 (ANSI-C `$'...'` quoting 지원)
+- JSON Formatter & Validator — Pretty print (2/4/Tab) ↔ Minify, 문법 오류 시 줄/열 위치 표시
+- Color Converter — HEX / RGB(A) / HSL(A) 상호 변환, Tailwind v3 팔레트(242색) 최근접 매칭
 - Unix Timestamp ↔ Date (sec/ms 자동 감지, ISO/로컬/상대시간)
 
 입력값은 자동으로 localStorage에 저장됩니다. 새로고침해도 마지막 입력과 활성 유틸이 복원됩니다.
