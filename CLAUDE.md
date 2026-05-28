@@ -95,6 +95,7 @@ export default {
 
 - JWT 서명 검증 없음 (디코딩 전용). HS256 등 검증이 필요해지면 Web Crypto + secret 입력 UI 추가.
 - cURL 파서는 `-X / -H / -b / -d / --data-raw / --data-binary / --data-urlencode / -F` 등 흔한 옵션만 인식. `-u / -A / -e / --cert / --proxy` 같은 옵션은 무시하고 `unknown[]` 에 기록한다(재직렬화 시 빠짐). PowerShell `^` 라인 연결 미지원. ANSI-C quoting(`$'...'`, `\n \t \xHH \uHHHH` 등)은 지원. multipart(`-F`) 는 raw 영역에 줄바꿈으로 합쳐 보존만 함.
+- cURL Body 의 Fields 편집기는 body 가 top-level JSON 객체일 때만 사용 가능. 값의 타입은 휴리스틱 추론(`true/false/null/숫자/{...}/[...]` 리터럴 모양이면 해당 타입, 아니면 문자열)이므로, 문자열 값이 우연히 `"true"`·`"42"` 같은 모양이면 boolean/number 로 직렬화된다. 그런 케이스는 Raw 모드로 편집. Fields 편집기에는 행 옆에 추론된 타입 태그가 표시된다.
 - JSON Validator 의 줄/열 위치는 `JSON.parse` 가 던지는 에러 메시지에서 추출하므로 런타임(브라우저/Node) 버전에 따라 누락될 수 있다. 추출 실패 시에는 원본 에러 메시지만 표시.
 - Color Converter 는 HEX / RGB(A) / HSL(A) 만 지원. CSS named color(`red`, `cornflowerblue` 등)와 `oklch / lab / color()` 함수는 미지원. Tailwind 매칭은 v3 기본 팔레트(22 hue × 11 shade) 기준 sRGB 유클리드 거리 — 지각적 정확도는 ΔE/Lab 기반이 아님.
 

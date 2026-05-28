@@ -1,6 +1,17 @@
 import { store } from '../store.js';
-import { parseCurl, serializeCurl } from '../utils/curl.js';
-import { el, viewHeader, panel, copyButton, outputBlock } from '../ui/widgets.js';
+import {
+  parseCurl,
+  serializeCurl,
+  bodyToFields,
+  fieldsToBody,
+  parseFieldValue,
+  detectFieldType,
+} from '../utils/curl.js';
+import { el, viewHeader, panel, copyButton, outputBlock, segmented } from '../ui/widgets.js';
+
+function valueTypeLabel(text) {
+  return detectFieldType(parseFieldValue(text));
+}
 
 const SAMPLE = `curl 'https://api.example.com/users?page=1' \\
   -X POST \\
@@ -32,6 +43,11 @@ export default {
     const headersWrap = el('div', { class: 'kv-edit' });
     const bodyFlagTag = el('span', { class: 'tag' });
     const bodyInput = el('textarea', { spellcheck: 'false' });
+    const bodyFieldsWrap = el('div', { class: 'kv-edit' });
+    const bodyPanelBody = el('div');
+    const initialFields = bodyToFields(model.body);
+    let bodyFields = initialFields || [];
+    let bodyMode = initialFields !== null ? 'fields' : 'raw';
     const unknownWrap = el('div');
     const serializedOut = outputBlock();
 
@@ -201,6 +217,78 @@ export default {
         bodyFlagTag.textContent = '';
         bodyFlagTag.style.display = 'none';
       }
+      // raw 입력으로부터 다시 들어왔으면 fields 도 새로 만든다
+      const parsed = bodyToFields(model.body);
+      if (parsed) bodyFields = parsed;
+      renderBodyPanel();
+    }
+
+    function renderBodyFields() {
+      bodyFieldsWrap.innerHTML = '';
+      bodyFields.forEach((_, i) => {
+        const row = el('div', { class: 'kv-row' });
+        const kIn = el('input', { type: 'text', placeholder: 'field' });
+        kIn.value = bodyFields[i].key;
+        kIn.addEventListener('input', () => {
+          bodyFields[i].key = kIn.value;
+          syncBodyFromFields();
+        });
+        const vIn = el('input', { type: 'text', placeholder: 'value' });
+        vIn.value = bodyFields[i].value;
+        const typeTag = el('span', { class: 'tag tag-type' }, valueTypeLabel(bodyFields[i].value));
+        vIn.addEventListener('input', () => {
+          bodyFields[i].value = vIn.value;
+          typeTag.textContent = valueTypeLabel(vIn.value);
+          syncBodyFromFields();
+        });
+        const del = el('button', { class: 'btn small', type: 'button', title: 'remove field' }, '×');
+        del.addEventListener('click', () => {
+          bodyFields.splice(i, 1);
+          renderBodyFields();
+          syncBodyFromFields();
+        });
+        row.appendChild(kIn);
+        row.appendChild(vIn);
+        row.appendChild(typeTag);
+        row.appendChild(del);
+        bodyFieldsWrap.appendChild(row);
+      });
+      const addBtn = el('button', { class: 'btn small', type: 'button' }, '+ Field');
+      addBtn.addEventListener('click', () => {
+        bodyFields.push({ key: '', value: '' });
+        renderBodyFields();
+        // 빈 key 행은 직렬화에 영향 없으므로 sync는 입력될 때까지 보류
+      });
+      bodyFieldsWrap.appendChild(addBtn);
+    }
+
+    function renderBodyPanel() {
+      bodyPanelBody.innerHTML = '';
+      if (bodyMode === 'fields') {
+        // body 가 JSON 객체가 아니면 안내문 + raw 로 fallback 안내
+        if (model.body && bodyToFields(model.body) === null) {
+          bodyPanelBody.appendChild(el(
+            'div',
+            { class: 'hint' },
+            'JSON 객체가 아니어서 필드 편집을 사용할 수 없습니다. Raw 로 전환해 편집하세요.',
+          ));
+          return;
+        }
+        renderBodyFields();
+        bodyPanelBody.appendChild(bodyFieldsWrap);
+      } else {
+        bodyInput.value = model.body || '';
+        bodyPanelBody.appendChild(bodyInput);
+      }
+    }
+
+    function syncBodyFromFields() {
+      model.body = fieldsToBody(bodyFields);
+      if (model.body && !model.bodyFlag) model.bodyFlag = '--data-raw';
+      bodyInput.value = model.body;
+      bodyFlagTag.textContent = model.body ? (model.bodyFlag || '--data-raw') : '';
+      bodyFlagTag.style.display = model.body ? '' : 'none';
+      syncSerialized();
     }
 
     function reloadFromRaw() {
@@ -241,6 +329,9 @@ export default {
       }
       bodyFlagTag.textContent = model.body ? (model.bodyFlag || '--data-raw') : '';
       bodyFlagTag.style.display = model.body ? '' : 'none';
+      // raw 편집 결과로 fields 도 따라오게 한다 (모드 전환 시 일관성)
+      const parsed = bodyToFields(model.body);
+      if (parsed) bodyFields = parsed;
       syncSerialized();
     });
 
@@ -258,9 +349,24 @@ export default {
       urlInput,
     ]);
 
+    const bodySeg = segmented(
+      [
+        { value: 'fields', label: 'Fields' },
+        { value: 'raw', label: 'Raw' },
+      ],
+      bodyMode,
+      (v) => {
+        bodyMode = v;
+        renderBodyPanel();
+      },
+    );
+
     const bodyHeaderExtras = el('span', { class: 'row', style: { gap: '6px' } }, [
       bodyFlagTag,
+      bodySeg,
     ]);
+
+    renderBodyPanel();
 
     root.appendChild(viewHeader(
       'cURL Parser',
@@ -270,7 +376,7 @@ export default {
     root.appendChild(panel('Method / URL', summaryBody));
     root.appendChild(panel('Query', queryWrap));
     root.appendChild(panel('Headers', headersWrap));
-    root.appendChild(panel('Body', bodyInput, bodyHeaderExtras));
+    root.appendChild(panel('Body', bodyPanelBody, bodyHeaderExtras));
     root.appendChild(panel('Ignored options', unknownWrap));
     root.appendChild(panel('Serialized curl', serializedOut.el, copyButton(() => serializedOut.el.textContent)));
 

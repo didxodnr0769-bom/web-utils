@@ -1,7 +1,16 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { tokenize, parseCurl, serializeCurl, tryParseJsonObject } from '../src/utils/curl.js';
+import {
+  tokenize,
+  parseCurl,
+  serializeCurl,
+  tryParseJsonObject,
+  bodyToFields,
+  fieldsToBody,
+  parseFieldValue,
+  detectFieldType,
+} from '../src/utils/curl.js';
 
 // --- tokenize ---
 test('curl tokenize: basic split / quotes / line-continuation', () => {
@@ -109,4 +118,85 @@ test('curl tryParseJsonObject', () => {
   assert.equal(tryParseJsonObject('[1,2]'), null);
   assert.equal(tryParseJsonObject('not json'), null);
   assert.equal(tryParseJsonObject(''), null);
+});
+
+// --- body fields helpers ---
+test('curl bodyToFields: returns null for non-object body', () => {
+  assert.equal(bodyToFields(''), null);
+  assert.equal(bodyToFields('plain text'), null);
+  assert.equal(bodyToFields('[1,2,3]'), null);
+});
+
+test('curl bodyToFields: maps each key to a row, value text matches primitive', () => {
+  assert.deepEqual(
+    bodyToFields('{"name":"Jane","age":30,"active":true,"note":null}'),
+    [
+      { key: 'name', value: 'Jane' },
+      { key: 'age', value: '30' },
+      { key: 'active', value: 'true' },
+      { key: 'note', value: 'null' },
+    ],
+  );
+});
+
+test('curl bodyToFields: nested object/array serialized as JSON literal', () => {
+  assert.deepEqual(
+    bodyToFields('{"meta":{"k":1},"tags":["a","b"]}'),
+    [
+      { key: 'meta', value: '{"k":1}' },
+      { key: 'tags', value: '["a","b"]' },
+    ],
+  );
+});
+
+test('curl parseFieldValue: heuristic type coercion', () => {
+  assert.equal(parseFieldValue('hello'), 'hello');
+  assert.equal(parseFieldValue(''), '');
+  assert.equal(parseFieldValue('true'), true);
+  assert.equal(parseFieldValue('false'), false);
+  assert.equal(parseFieldValue('null'), null);
+  assert.equal(parseFieldValue('42'), 42);
+  assert.equal(parseFieldValue('-3.14'), -3.14);
+  assert.equal(parseFieldValue('1e3'), 1000);
+  assert.deepEqual(parseFieldValue('{"a":1}'), { a: 1 });
+  assert.deepEqual(parseFieldValue('[1,2]'), [1, 2]);
+  // 잘못된 JSON 리터럴 모양은 그대로 문자열로
+  assert.equal(parseFieldValue('{not json}'), '{not json}');
+  // 숫자 패턴이 아니면 문자열
+  assert.equal(parseFieldValue('00123'), '00123');
+});
+
+test('curl detectFieldType', () => {
+  assert.equal(detectFieldType('a'), 'string');
+  assert.equal(detectFieldType(1), 'number');
+  assert.equal(detectFieldType(true), 'boolean');
+  assert.equal(detectFieldType(null), 'null');
+  assert.equal(detectFieldType([]), 'array');
+  assert.equal(detectFieldType({}), 'object');
+});
+
+test('curl fieldsToBody: skips rows with empty key, preserves types via heuristic', () => {
+  assert.equal(
+    fieldsToBody([
+      { key: 'name', value: 'Jane' },
+      { key: 'age', value: '30' },
+      { key: 'active', value: 'true' },
+      { key: '', value: 'ignored' },
+    ]),
+    '{"name":"Jane","age":30,"active":true}',
+  );
+});
+
+test('curl body fields round-trip: bodyToFields → fieldsToBody preserves JSON', () => {
+  const cases = [
+    '{"name":"Jane","age":30}',
+    '{"a":true,"b":false,"c":null}',
+    '{"nested":{"k":1},"arr":[1,2,3]}',
+    '{"empty":""}',
+  ];
+  for (const body of cases) {
+    const rows = bodyToFields(body);
+    assert.ok(rows, `bodyToFields returned null for ${body}`);
+    assert.equal(fieldsToBody(rows), body);
+  }
 });

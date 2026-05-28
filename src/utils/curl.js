@@ -353,3 +353,56 @@ export function tryParseJsonObject(text) {
     return null;
   }
 }
+
+/** JSON value를 폼 셀 텍스트로 (string은 그대로, 나머지는 JSON 리터럴) */
+export function serializeFieldValue(v) {
+  if (v === null) return 'null';
+  if (typeof v === 'string') return v;
+  if (typeof v === 'number' || typeof v === 'boolean') return String(v);
+  return JSON.stringify(v);
+}
+
+/** 폼 셀 텍스트 → JSON value. boolean/null/number/object/array 리터럴은 자동 인식, 나머지는 string. */
+export function parseFieldValue(text) {
+  if (text === '') return '';
+  if (text === 'true') return true;
+  if (text === 'false') return false;
+  if (text === 'null') return null;
+  if (/^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$/.test(text)) {
+    const n = Number(text);
+    if (Number.isFinite(n)) return n;
+  }
+  const t = text.trim();
+  if ((t.startsWith('{') && t.endsWith('}')) || (t.startsWith('[') && t.endsWith(']'))) {
+    try { return JSON.parse(t); } catch { /* fallthrough */ }
+  }
+  return text;
+}
+
+/** JSON value 의 표시용 타입 라벨 */
+export function detectFieldType(v) {
+  if (v === null) return 'null';
+  if (Array.isArray(v)) return 'array';
+  if (typeof v === 'object') return 'object';
+  return typeof v; // 'string' | 'number' | 'boolean'
+}
+
+/** body 문자열(JSON object일 때)을 [{key,value}] 행 배열로. 객체 아니면 null. */
+export function bodyToFields(body) {
+  const obj = tryParseJsonObject(body);
+  if (!obj) return null;
+  return Object.entries(obj).map(([key, value]) => ({
+    key,
+    value: serializeFieldValue(value),
+  }));
+}
+
+/** 행 배열을 다시 JSON 객체 문자열로 직렬화. 빈 key 행은 스킵. */
+export function fieldsToBody(fields) {
+  const obj = {};
+  for (const f of fields || []) {
+    if (!f || !f.key) continue;
+    obj[f.key] = parseFieldValue(f.value);
+  }
+  return JSON.stringify(obj);
+}
