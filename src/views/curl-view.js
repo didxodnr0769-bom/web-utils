@@ -226,12 +226,16 @@ export default {
     function renderFavorites() {
       favListWrap.innerHTML = '';
       if (!s.favorites.length) {
-        favListWrap.appendChild(el('div', { class: 'hint' }, '저장된 cURL 이 없습니다.'));
+        favListWrap.appendChild(el('div', { class: 'hint fav-empty' }, '저장된 cURL 이 없습니다.'));
         return;
       }
+      favListWrap.appendChild(
+        el('div', { class: 'fav-list-title' }, `저장된 cURL (${s.favorites.length})`),
+      );
       s.favorites.forEach((fav, i) => {
         const row = el('div', { class: 'fav-row' });
-        const nameIn = el('input', { type: 'text', placeholder: '이름' });
+        const star = el('span', { class: 'fav-star', title: '저장됨' }, '★');
+        const nameIn = el('input', { type: 'text', placeholder: '이름', class: 'fav-name' });
         nameIn.value = fav.name;
         nameIn.addEventListener('input', () => {
           s.favorites[i].name = nameIn.value;
@@ -246,6 +250,7 @@ export default {
           store.persistNow();
           renderFavorites();
         });
+        row.appendChild(star);
         row.appendChild(nameIn);
         row.appendChild(loadBtn);
         row.appendChild(del);
@@ -474,7 +479,11 @@ export default {
     ));
     root.appendChild(panel('Input', input));
     root.appendChild(panel('Favorites (즐겨찾기)', [
-      el('div', { class: 'fav-save-row' }, [favNameInput, favSaveBtn]),
+      el('div', { class: 'fav-save-card' }, [
+        el('div', { class: 'fav-save-title' }, '＋ 새 즐겨찾기 저장'),
+        el('div', { class: 'fav-save-row' }, [favNameInput, favSaveBtn]),
+        el('div', { class: 'hint fav-save-hint' }, '현재 편집 중인 cURL 을 이름과 함께 저장합니다.'),
+      ]),
       favListWrap,
     ]));
     root.appendChild(panel('Method / URL', summaryBody));

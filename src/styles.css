@@ -506,29 +506,88 @@ mark {
   border-left: 2px solid var(--border);
 }
 
-/* ---------- cURL Favorites ---------- */
+/* ---------- cURL Favorites ----------
+   저장 폼(카드)과 저장된 목록(리스트)을 시각적으로 분리. */
 
+.fav-save-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 12px;
+  margin-bottom: 14px;
+  background: var(--surface-2);
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius-sm);
+}
+.fav-save-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+  letter-spacing: 0.02em;
+}
 .fav-save-row {
   display: flex;
   gap: 6px;
   align-items: center;
-  margin-bottom: 8px;
 }
 .fav-save-row > input[type="text"] {
   flex: 1;
   min-width: 0;
+}
+.fav-save-hint {
+  margin-top: 0;
+}
+
+.fav-list-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 6px;
 }
 .fav-list {
   display: flex;
   flex-direction: column;
   gap: 6px;
 }
+.fav-empty {
+  padding: 8px 2px;
+}
 .fav-row {
   display: flex;
   gap: 6px;
   align-items: center;
+  padding: 4px 8px 4px 4px;
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  transition: background 120ms, border-color 120ms;
 }
-.fav-row > input[type="text"] {
+.fav-row:hover {
+  background: var(--surface-2);
+  border-color: var(--border);
+}
+.fav-star {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  color: #d4a017;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+.fav-row > input.fav-name {
   flex: 1;
   min-width: 0;
+  border: none;
+  background: transparent;
+  font-weight: 500;
+  padding: 4px 2px;
+}
+.fav-row > input.fav-name:focus {
+  outline: none;
+  background: var(--surface);
+  border-radius: 4px;
+  box-shadow: 0 0 0 1px var(--border-strong);
 }
