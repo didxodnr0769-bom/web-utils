@@ -476,8 +476,10 @@ mark {
 .json-area {
   flex: 1;
   min-width: 0;
-  height: 300px;
-  resize: vertical;
+  min-height: 60px;
+  max-height: 600px;
+  resize: none;
+  overflow: auto;
   font-family: var(--mono);
   font-size: 12px;
   padding: 8px 10px;

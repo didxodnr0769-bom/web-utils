@@ -13,6 +13,12 @@ function valueTypeLabel(text) {
   return detectFieldType(parseFieldValue(text));
 }
 
+function autosizeTextarea(ta) {
+  // height 를 auto 로 잠깐 풀어야 scrollHeight 가 현재 content 기준으로 잡힌다.
+  ta.style.height = 'auto';
+  ta.style.height = (ta.scrollHeight + 2) + 'px'; // +2: border 보정
+}
+
 const SAMPLE = `curl 'https://api.example.com/users?page=1' \\
   -X POST \\
   -H 'accept: application/json' \\
@@ -308,13 +314,14 @@ export default {
 
         if (field.multiline) {
           // Object / Array 값: 단일라인 행과 동일한 좌/우 레이아웃,
-          // value 자리에만 textarea(300px) 가 들어간다.
+          // value 자리에 content 높이에 맞춰 자동 확장되는 textarea.
           const row = el('div', { class: 'kv-row multiline' });
           const vIn = el('textarea', { spellcheck: 'false', class: 'json-area' });
           vIn.value = field.value;
           vIn.addEventListener('input', () => {
             bodyFields[i].value = vIn.value;
             typeTag.textContent = valueTypeLabel(vIn.value);
+            autosizeTextarea(vIn);
             syncBodyFromFields();
           });
           row.appendChild(kIn);
@@ -322,6 +329,8 @@ export default {
           row.appendChild(typeTag);
           row.appendChild(del);
           bodyFieldsWrap.appendChild(row);
+          // DOM 부착 이후에야 scrollHeight 가 정확함 → 다음 프레임에 적용
+          requestAnimationFrame(() => autosizeTextarea(vIn));
         } else {
           // primitive 값: 한 줄 입력
           const row = el('div', { class: 'kv-row' });
