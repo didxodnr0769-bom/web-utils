@@ -468,15 +468,41 @@ mark {
   margin-top: 2px;
 }
 
+/* Body Fields — Object/Array 값은 카드형 컨테이너로 묶어
+   필드명(헤더) vs 필드 내용(textarea) 을 시각적으로 구분 */
 .kv-row.multiline {
   flex-direction: column;
   align-items: stretch;
-  gap: 4px;
+  gap: 6px;
+  padding: 8px 10px 10px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
 }
 .kv-row.multiline > .kv-row.head {
   display: flex;
   gap: 6px;
   align-items: center;
+}
+.kv-row.multiline .field-label,
+.kv-row.multiline .value-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-muted);
+  letter-spacing: 0.08em;
+}
+.kv-row.multiline .field-label {
+  padding: 2px 6px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+}
+.kv-row.multiline .value-label {
+  padding-left: 2px;
+  margin-top: 2px;
+}
+.kv-row.multiline .field-key {
+  font-weight: 600;
 }
 .json-area {
   width: 100%;
@@ -484,13 +510,14 @@ mark {
   resize: vertical;
   font-family: var(--mono);
   font-size: 12px;
-  padding: 6px 8px;
-  border: 1px solid var(--border);
+  padding: 8px 10px;
+  border: 1px solid var(--border-strong);
   border-radius: 4px;
   background: var(--surface);
   color: var(--text);
   box-sizing: border-box;
 }
+.json-area:focus { outline: none; border-color: var(--accent); }
 
 .cookie-block {
   border: 1px dashed var(--border);

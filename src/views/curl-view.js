@@ -307,9 +307,17 @@ export default {
         });
 
         if (field.multiline) {
-          // Object / Array 값: 헤드(키+태그+삭제) + textarea 스택
+          // Object / Array 값: 카드형 컨테이너 — 필드명(헤더) / value (JSON) 라벨 / textarea
           const row = el('div', { class: 'kv-row multiline' });
-          const head = el('div', { class: 'kv-row head' }, [kIn, typeTag, del]);
+          kIn.placeholder = 'field name';
+          kIn.classList.add('field-key');
+          const head = el('div', { class: 'kv-row head' }, [
+            el('span', { class: 'field-label' }, 'FIELD'),
+            kIn,
+            typeTag,
+            del,
+          ]);
+          const valueLabel = el('div', { class: 'value-label' }, 'VALUE (JSON)');
           const vIn = el('textarea', { spellcheck: 'false', class: 'json-area' });
           vIn.value = field.value;
           vIn.addEventListener('input', () => {
@@ -318,6 +326,7 @@ export default {
             syncBodyFromFields();
           });
           row.appendChild(head);
+          row.appendChild(valueLabel);
           row.appendChild(vIn);
           bodyFieldsWrap.appendChild(row);
         } else {
