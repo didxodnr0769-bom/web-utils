@@ -282,45 +282,64 @@ export default {
         bodyFlagTag.textContent = '';
         bodyFlagTag.style.display = 'none';
       }
-      // raw 입력으로부터 다시 들어왔으면 fields 도 새로 만든다
-      const parsed = bodyToFields(model.body);
-      if (parsed) bodyFields = parsed;
+      // raw 입력으로부터 다시 들어왔으면 fields 를 항상 현재 body 기준으로 재생성한다
+      // (INPUT 을 비웠을 때 stale 한 fields 가 남는 문제 방지)
+      bodyFields = bodyToFields(model.body) || [];
       renderBodyPanel();
     }
 
     function renderBodyFields() {
       bodyFieldsWrap.innerHTML = '';
       bodyFields.forEach((_, i) => {
-        const row = el('div', { class: 'kv-row' });
+        const field = bodyFields[i];
         const kIn = el('input', { type: 'text', placeholder: 'field' });
-        kIn.value = bodyFields[i].key;
+        kIn.value = field.key;
         kIn.addEventListener('input', () => {
           bodyFields[i].key = kIn.value;
           syncBodyFromFields();
         });
-        const vIn = el('input', { type: 'text', placeholder: 'value' });
-        vIn.value = bodyFields[i].value;
-        const typeTag = el('span', { class: 'tag tag-type' }, valueTypeLabel(bodyFields[i].value));
-        vIn.addEventListener('input', () => {
-          bodyFields[i].value = vIn.value;
-          typeTag.textContent = valueTypeLabel(vIn.value);
-          syncBodyFromFields();
-        });
+        const typeTag = el('span', { class: 'tag tag-type' }, valueTypeLabel(field.value));
         const del = el('button', { class: 'btn small', type: 'button', title: 'remove field' }, '×');
         del.addEventListener('click', () => {
           bodyFields.splice(i, 1);
           renderBodyFields();
           syncBodyFromFields();
         });
-        row.appendChild(kIn);
-        row.appendChild(vIn);
-        row.appendChild(typeTag);
-        row.appendChild(del);
-        bodyFieldsWrap.appendChild(row);
+
+        if (field.multiline) {
+          // Object / Array 값: 헤드(키+태그+삭제) + textarea 스택
+          const row = el('div', { class: 'kv-row multiline' });
+          const head = el('div', { class: 'kv-row head' }, [kIn, typeTag, del]);
+          const vIn = el('textarea', { spellcheck: 'false', class: 'json-area' });
+          vIn.value = field.value;
+          vIn.addEventListener('input', () => {
+            bodyFields[i].value = vIn.value;
+            typeTag.textContent = valueTypeLabel(vIn.value);
+            syncBodyFromFields();
+          });
+          row.appendChild(head);
+          row.appendChild(vIn);
+          bodyFieldsWrap.appendChild(row);
+        } else {
+          // primitive 값: 한 줄 입력
+          const row = el('div', { class: 'kv-row' });
+          const vIn = el('input', { type: 'text', placeholder: 'value' });
+          vIn.value = field.value;
+          vIn.addEventListener('input', () => {
+            bodyFields[i].value = vIn.value;
+            typeTag.textContent = valueTypeLabel(vIn.value);
+            syncBodyFromFields();
+          });
+          row.appendChild(kIn);
+          row.appendChild(vIn);
+          row.appendChild(typeTag);
+          row.appendChild(del);
+          bodyFieldsWrap.appendChild(row);
+        }
       });
       const addBtn = el('button', { class: 'btn small', type: 'button' }, '+ Field');
       addBtn.addEventListener('click', () => {
-        bodyFields.push({ key: '', value: '' });
+        bodyFields.push({ key: '', value: '', multiline: false });
         renderBodyFields();
         // 빈 key 행은 직렬화에 영향 없으므로 sync는 입력될 때까지 보류
       });
@@ -395,8 +414,7 @@ export default {
       bodyFlagTag.textContent = model.body ? (model.bodyFlag || '--data-raw') : '';
       bodyFlagTag.style.display = model.body ? '' : 'none';
       // raw 편집 결과로 fields 도 따라오게 한다 (모드 전환 시 일관성)
-      const parsed = bodyToFields(model.body);
-      if (parsed) bodyFields = parsed;
+      bodyFields = bodyToFields(model.body) || [];
       syncSerialized();
     });
 

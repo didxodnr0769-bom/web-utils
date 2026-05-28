@@ -387,14 +387,22 @@ export function detectFieldType(v) {
   return typeof v; // 'string' | 'number' | 'boolean'
 }
 
-/** body 문자열(JSON object일 때)을 [{key,value}] 행 배열로. 객체 아니면 null. */
+/**
+ * body 문자열(JSON object일 때)을 [{key,value,multiline}] 행 배열로. 객체 아니면 null.
+ * value 가 object/array 면 `multiline:true` + 2-space pretty JSON 으로 — UI 에서 textarea 로 표시.
+ */
 export function bodyToFields(body) {
   const obj = tryParseJsonObject(body);
   if (!obj) return null;
-  return Object.entries(obj).map(([key, value]) => ({
-    key,
-    value: serializeFieldValue(value),
-  }));
+  return Object.entries(obj).map(([key, value]) => {
+    const t = detectFieldType(value);
+    const multiline = t === 'object' || t === 'array';
+    return {
+      key,
+      value: multiline ? JSON.stringify(value, null, 2) : serializeFieldValue(value),
+      multiline,
+    };
+  });
 }
 
 /** 행 배열을 다시 JSON 객체 문자열로 직렬화. 빈 key 행은 스킵. */

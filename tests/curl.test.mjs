@@ -131,20 +131,20 @@ test('curl bodyToFields: maps each key to a row, value text matches primitive', 
   assert.deepEqual(
     bodyToFields('{"name":"Jane","age":30,"active":true,"note":null}'),
     [
-      { key: 'name', value: 'Jane' },
-      { key: 'age', value: '30' },
-      { key: 'active', value: 'true' },
-      { key: 'note', value: 'null' },
+      { key: 'name', value: 'Jane', multiline: false },
+      { key: 'age', value: '30', multiline: false },
+      { key: 'active', value: 'true', multiline: false },
+      { key: 'note', value: 'null', multiline: false },
     ],
   );
 });
 
-test('curl bodyToFields: nested object/array serialized as JSON literal', () => {
+test('curl bodyToFields: nested object/array gets multiline + pretty JSON', () => {
   assert.deepEqual(
     bodyToFields('{"meta":{"k":1},"tags":["a","b"]}'),
     [
-      { key: 'meta', value: '{"k":1}' },
-      { key: 'tags', value: '["a","b"]' },
+      { key: 'meta', value: JSON.stringify({ k: 1 }, null, 2), multiline: true },
+      { key: 'tags', value: JSON.stringify(['a', 'b'], null, 2), multiline: true },
     ],
   );
 });
