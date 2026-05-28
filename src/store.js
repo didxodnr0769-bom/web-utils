@@ -10,7 +10,7 @@ const defaults = {
   base64: { text: '', mode: 'encode', urlSafe: false },
   url: { text: '', mode: 'encode' },
   'unix-timestamp': { value: '', tz: 'local' },
-  curl: { text: '' },
+  curl: { text: '', favorites: [] },
   json: { text: '', mode: 'pretty', indent: 2 },
   color: { text: '#3b82f6' },
 };
@@ -24,8 +24,20 @@ function defaultState() {
 
 function cloneDefaults() {
   const out = {};
-  for (const k of Object.keys(defaults)) out[k] = { ...defaults[k] };
+  for (const k of Object.keys(defaults)) out[k] = cloneDeep(defaults[k]);
   return out;
+}
+
+function cloneDeep(v) {
+  // defaults 에 array(예: favorites) 가 있어 shared reference 가 되지 않도록
+  // 단순 값/배열/객체만 다룬다.
+  if (Array.isArray(v)) return v.map(cloneDeep);
+  if (v && typeof v === 'object') {
+    const o = {};
+    for (const k of Object.keys(v)) o[k] = cloneDeep(v[k]);
+    return o;
+  }
+  return v;
 }
 
 let state = load();
@@ -68,7 +80,7 @@ function emit() {
 export const store = {
   get() { return state; },
   getInputs(id) {
-    if (!state.inputs[id]) state.inputs[id] = { ...(defaults[id] || {}) };
+    if (!state.inputs[id]) state.inputs[id] = cloneDeep(defaults[id] || {});
     return state.inputs[id];
   },
   setActive(id) {
@@ -83,7 +95,7 @@ export const store = {
   persistNow,
   reset(id) {
     if (id) {
-      state.inputs[id] = { ...(defaults[id] || {}) };
+      state.inputs[id] = cloneDeep(defaults[id] || {});
     } else {
       state = defaultState();
     }

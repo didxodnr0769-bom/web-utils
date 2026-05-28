@@ -51,6 +51,15 @@ export default {
     const unknownWrap = el('div');
     const serializedOut = outputBlock();
 
+    // --- Favorites ---
+    if (!Array.isArray(s.favorites)) s.favorites = [];
+    const favListWrap = el('div', { class: 'fav-list' });
+    const favNameInput = el('input', {
+      type: 'text',
+      placeholder: '예: A그룹 직원 등록',
+    });
+    const favSaveBtn = el('button', { class: 'btn', type: 'button' }, '저장');
+
     function updateOutput() {
       try {
         serializedOut.set(serializeCurl(model));
@@ -208,6 +217,62 @@ export default {
       }
     }
 
+    function renderFavorites() {
+      favListWrap.innerHTML = '';
+      if (!s.favorites.length) {
+        favListWrap.appendChild(el('div', { class: 'hint' }, '저장된 cURL 이 없습니다.'));
+        return;
+      }
+      s.favorites.forEach((fav, i) => {
+        const row = el('div', { class: 'fav-row' });
+        const nameIn = el('input', { type: 'text', placeholder: '이름' });
+        nameIn.value = fav.name;
+        nameIn.addEventListener('input', () => {
+          s.favorites[i].name = nameIn.value;
+          store.persistNow();
+        });
+        const loadBtn = el('button', { class: 'btn small', type: 'button' }, '불러오기');
+        loadBtn.addEventListener('click', () => loadFavorite(fav));
+        const del = el('button', { class: 'btn small', type: 'button', title: 'remove' }, '×');
+        del.addEventListener('click', () => {
+          if (!confirm(`'${fav.name || '(이름 없음)'}' 을(를) 삭제하시겠습니까?`)) return;
+          s.favorites.splice(i, 1);
+          store.persistNow();
+          renderFavorites();
+        });
+        row.appendChild(nameIn);
+        row.appendChild(loadBtn);
+        row.appendChild(del);
+        favListWrap.appendChild(row);
+      });
+    }
+
+    function saveFavorite() {
+      const name = favNameInput.value.trim();
+      if (!name) {
+        favNameInput.focus();
+        return;
+      }
+      if (!s.text.trim()) {
+        alert('저장할 cURL 이 없습니다.');
+        return;
+      }
+      s.favorites.unshift({
+        id: `fav-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+        name,
+        text: s.text,
+      });
+      store.persistNow();
+      favNameInput.value = '';
+      renderFavorites();
+    }
+
+    function loadFavorite(fav) {
+      input.value = fav.text;
+      s.text = fav.text;
+      reloadFromRaw();
+    }
+
     function refreshBody() {
       bodyInput.value = model.body || '';
       if (model.body) {
@@ -341,6 +406,12 @@ export default {
     renderQuery();
     renderHeaders();
     renderUnknown();
+    renderFavorites();
+
+    favSaveBtn.addEventListener('click', saveFavorite);
+    favNameInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') { e.preventDefault(); saveFavorite(); }
+    });
 
     const summaryBody = el('div', { class: 'curl-summary' }, [
       el('label', { class: 'kv-label' }, 'Method'),
@@ -373,6 +444,10 @@ export default {
       'curl 명령을 붙여넣으면 메서드/URL/쿼리/헤더/바디로 분해합니다. 각 항목을 수정하면 하단의 정규화된 curl이 실시간으로 갱신됩니다.',
     ));
     root.appendChild(panel('Input', input));
+    root.appendChild(panel('Favorites (즐겨찾기)', [
+      el('div', { class: 'fav-save-row' }, [favNameInput, favSaveBtn]),
+      favListWrap,
+    ]));
     root.appendChild(panel('Method / URL', summaryBody));
     root.appendChild(panel('Query', queryWrap));
     root.appendChild(panel('Headers', headersWrap));

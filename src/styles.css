@@ -482,3 +482,30 @@ mark {
   padding-left: 12px;
   border-left: 2px solid var(--border);
 }
+
+/* ---------- cURL Favorites ---------- */
+
+.fav-save-row {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.fav-save-row > input[type="text"] {
+  flex: 1;
+  min-width: 0;
+}
+.fav-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.fav-row {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+.fav-row > input[type="text"] {
+  flex: 1;
+  min-width: 0;
+}

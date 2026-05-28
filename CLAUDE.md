@@ -41,7 +41,7 @@ jwt:            { token }
 base64:         { text, mode, urlSafe }
 url:            { text, mode }
 unix-timestamp: { value, tz }
-curl:           { text }
+curl:           { text, favorites: [{ id, name, text }] }
 json:           { text, mode, indent }
 color:          { text }
 ```
@@ -85,6 +85,8 @@ export default {
 키: `web-utils:v1`. 모양: `{ activeUtil, inputs: { [utilId]: {...} } }`.
 
 `load()` 가 알려진 키만 머지해 들이므로, 새 유틸 추가 시 `defaults` 만 늘리면 기존 사용자도 자연히 신규 필드를 보게 된다. 스키마가 깨지는 변경(필드 의미 변경 등)에서만 `v2` 로 올리고 마이그레이션 또는 무시 정책을 추가하세요.
+
+`defaults` 에 array/object 가 포함된 경우(예: `curl.favorites: []`) 상태 초기화 시 reference 공유를 막기 위해 `cloneDeep` 으로 복사된다. 새 array/object 필드를 추가할 때 주의사항 — primitive 만 두면 신경 쓸 필요 없음.
 
 ### 5. Vite + 가벼운 의존성
 
