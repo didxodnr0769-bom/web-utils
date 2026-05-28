@@ -233,7 +233,12 @@ export default {
         el('div', { class: 'fav-list-title' }, `저장된 cURL (${s.favorites.length})`),
       );
       s.favorites.forEach((fav, i) => {
-        const row = el('div', { class: 'fav-row' });
+        const row = el('div', { class: 'fav-row', title: '클릭하여 불러오기' });
+        // input/button 외 영역(★, padding 등) 클릭 시 불러오기
+        row.addEventListener('click', (e) => {
+          if (e.target.closest('input, button')) return;
+          loadFavorite(fav);
+        });
         const star = el('span', { class: 'fav-star', title: '저장됨' }, '★');
         const nameIn = el('input', { type: 'text', placeholder: '이름', class: 'fav-name' });
         nameIn.value = fav.name;

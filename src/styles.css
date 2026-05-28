@@ -560,12 +560,15 @@ mark {
   align-items: center;
   padding: 4px 8px 4px 4px;
   border-radius: var(--radius-sm);
-  border: 1px solid transparent;
-  transition: background 120ms, border-color 120ms;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  transition: background 120ms, border-color 120ms, box-shadow 120ms;
 }
 .fav-row:hover {
-  background: var(--surface-2);
-  border-color: var(--border);
+  background: var(--surface);
+  border-color: var(--border-strong);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  cursor: pointer;
 }
 .fav-star {
   display: inline-flex;
